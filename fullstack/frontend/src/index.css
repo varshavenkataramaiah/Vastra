@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+  --ink: #282c3f;
+  --muted-ink: #696e79;
+  --paper: #f6f6f6;
+  --surface: #ffffff;
+  --line: #e9e9eb;
+  --accent: #ff3f6c;
+  --accent-dark: #d62955;
+  --olive: #ff9f43;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+.navbar-brand {
+  font-family: 'DM Sans', sans-serif;
+}
+
+a {
+  color: var(--accent-dark);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
