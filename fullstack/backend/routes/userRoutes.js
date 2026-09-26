@@ -51,6 +51,7 @@ router.put('/me', authMiddleware, async (req, res) => {
       'hintName',
     ];
     const updates = {};
+    const unsetFields = {};
 
     allowedFields.forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(req.body || {}, field)) {
@@ -62,17 +63,20 @@ router.put('/me', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: 'Name and email or mobile are required' });
     }
 
-    if (updates.email) {
-      updates.email = updates.email.toLowerCase();
-    } else {
-      updates.email = '';
-    }
+    ['email', 'mobile'].forEach((field) => {
+      if (!Object.prototype.hasOwnProperty.call(updates, field)) return;
+      if (updates[field]) {
+        if (field === 'email') updates[field] = updates[field].toLowerCase();
+      } else {
+        delete updates[field];
+        unsetFields[field] = 1;
+      }
+    });
 
-    if (!updates.mobile) {
-      updates.mobile = '';
-    }
-
-    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+    const profileUpdate = Object.keys(unsetFields).length
+      ? { $set: updates, $unset: unsetFields }
+      : updates;
+    const user = await User.findByIdAndUpdate(req.user.id, profileUpdate, {
       returnDocument: 'after',
       runValidators: true,
     }).select('-password');
@@ -130,7 +134,9 @@ router.put('/me/preferences', authMiddleware, async (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, mobile, password } = req.body || {};
+    const { name, password } = req.body || {};
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    const mobile = typeof req.body?.mobile === 'string' ? req.body.mobile.trim() : '';
 
     if (!name || (!email && !mobile)) {
       return res.status(400).json({ message: 'Name and email or mobile are required' });
@@ -156,8 +162,8 @@ router.post('/register', async (req, res) => {
 
     const userData = {
       name,
-      email: email ? email.toLowerCase() : '',
-      mobile: mobile || '',
+      email: email || undefined,
+      mobile: mobile || undefined,
       password: email ? await bcrypt.hash(password, 10) : '',
     };
 

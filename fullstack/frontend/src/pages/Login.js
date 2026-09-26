@@ -51,7 +51,7 @@ function Login() {
 
       localStorage.setItem('vastraToken', data.token);
       dispatch({ type: 'LOGIN_USER', payload: data.user });
-      navigate(location.state?.from || '/');
+      navigate(location.state?.from || (data.user.isAdmin ? '/admin' : '/'));
     } catch (submitError) {
       setError(submitError.message || 'Unable to log in.');
     }
