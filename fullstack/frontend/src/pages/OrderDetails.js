@@ -7,6 +7,8 @@ function OrderDetails() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [error, setError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('vastraToken');
@@ -32,6 +34,26 @@ function OrderDetails() {
 
     fetchOrder();
   }, [id]);
+
+  const cancelOrder = async () => {
+    if (!window.confirm('Cancel this order?')) return;
+
+    setActionError('');
+    setIsCancelling(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders/${id}/cancel`, {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${localStorage.getItem('vastraToken') || ''}` },
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Unable to cancel order');
+      setOrder(data.order);
+    } catch (cancelError) {
+      setActionError(cancelError.message || 'Unable to cancel order');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
   return (
     <>
@@ -64,6 +86,14 @@ function OrderDetails() {
                 </div>
               ))}
             </div>
+            {['PLACED', 'PROCESSING'].includes(order.status) && (
+              <div className="order-detail-actions">
+                <button className="btn btn-outline-danger btn-sm" type="button" disabled={isCancelling} onClick={cancelOrder}>
+                  {isCancelling ? 'Cancelling...' : 'Cancel order'}
+                </button>
+                {actionError && <p className="text-danger mb-0" role="alert">{actionError}</p>}
+              </div>
+            )}
           </article>
         ) : (
           <p className="text-muted mt-4">Loading order...</p>
