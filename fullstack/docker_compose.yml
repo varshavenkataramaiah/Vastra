@@ -1,0 +1,56 @@
+services:
+  mongo:
+    networks:
+      - mern-network
+    image: mongo:7
+    container_name: mern-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: VASTRA
+
+  backend:
+    container_name: mern-backend
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      MONGODB_URI: mongodb://mongo:27017/VASTRA
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in fullstack/.env}
+      RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-}
+      RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3005}
+    depends_on:
+      - mongo
+    networks:
+      - mern-network
+    restart: unless-stopped
+
+  frontend:
+    container_name: mern-frontend
+    build:
+      context: ./frontend
+      dockerfile: dockerfile
+      args:
+        REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:5001/api}
+    ports:
+      - "3005:80"
+    depends_on:
+      - backend
+    networks:
+      - mern-network
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
+
+networks:
+  mern-network:
+    driver: bridge
