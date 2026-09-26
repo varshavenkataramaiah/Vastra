@@ -1,10 +1,10 @@
-const isAdminEmail = (email) => {
-  const adminEmails = String(process.env.ADMIN_EMAILS || '')
+const isAdminUserId = (userId) => {
+  const adminUserIds = String(process.env.ADMIN_USER_IDS || '')
     .split(',')
-    .map((adminEmail) => adminEmail.trim().toLowerCase())
+    .map((adminUserId) => adminUserId.trim().toLowerCase())
     .filter(Boolean);
 
-  return Boolean(email) && adminEmails.includes(email.toLowerCase());
+  return Boolean(userId) && adminUserIds.includes(String(userId).toLowerCase());
 };
 
-module.exports = { isAdminEmail };
+module.exports = { isAdminUserId };

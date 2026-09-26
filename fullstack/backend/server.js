@@ -10,8 +10,14 @@ const orderRoutes = require('./routes/orderRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const allowedOrigins = String(process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:3005')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin)),
+}));
 app.use(express.json());
 
 const initializeDatabase = async () => {

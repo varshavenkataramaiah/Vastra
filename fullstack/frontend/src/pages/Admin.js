@@ -184,7 +184,7 @@ function Admin() {
 
   if (!currentUser?.isAdmin) {
     return (
-      <><Navbar /><main className="container py-5 text-center"><h1 className="page-title">Admin access required</h1><p className="text-muted">Log in with the email configured in ADMIN_EMAILS.</p><Link className="btn btn-dark" to="/login">Log in</Link></main></>
+      <><Navbar /><main className="container py-5 text-center"><h1 className="page-title">Admin access required</h1><p className="text-muted">This account is not configured for admin access.</p><Link className="btn btn-dark" to="/login">Log in</Link></main></>
     );
   }
 

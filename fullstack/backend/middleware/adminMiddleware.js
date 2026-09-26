@@ -1,9 +1,9 @@
 const authMiddleware = require('./authMiddleware');
-const { isAdminEmail } = require('../utils/admin');
+const { isAdminUserId } = require('../utils/admin');
 
 const adminMiddleware = (req, res, next) => {
   authMiddleware(req, res, () => {
-    if (!isAdminEmail(req.user?.email)) {
+    if (!isAdminUserId(req.user?.id)) {
       return res.status(403).json({ message: 'Admin access is required' });
     }
 

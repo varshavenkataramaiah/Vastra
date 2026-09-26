@@ -3,19 +3,10 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { generateToken } = require('../utils/jwt');
 const authMiddleware = require('../middleware/authMiddleware');
-const { isAdminEmail } = require('../utils/admin');
+const { isAdminUserId } = require('../utils/admin');
 const adminMiddleware = require('../middleware/adminMiddleware');
 
 const router = express.Router();
-
-router.get('/', async (req, res) => {
-  try {
-    const users = await User.find({}).select('-password');
-    res.status(200).json({ users });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
-  }
-});
 
 router.get('/admin/all', adminMiddleware, async (req, res) => {
   try {
@@ -32,7 +23,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json({ user: { ...user.toObject(), isAdmin: isAdminEmail(user.email) } });
+    res.status(200).json({ user: { ...user.toObject(), isAdmin: isAdminUserId(user._id) } });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch profile', error: error.message });
   }
@@ -87,7 +78,7 @@ router.put('/me', authMiddleware, async (req, res) => {
 
     res.status(200).json({
       message: 'Profile updated successfully',
-      user: { ...user.toObject(), isAdmin: isAdminEmail(user.email) },
+      user: { ...user.toObject(), isAdmin: isAdminUserId(user._id) },
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -178,7 +169,7 @@ router.post('/register', async (req, res) => {
         name: user.name,
         email: user.email,
         mobile: user.mobile,
-        isAdmin: isAdminEmail(user.email),
+        isAdmin: isAdminUserId(user._id),
       },
     });
   } catch (error) {
@@ -227,7 +218,7 @@ router.post('/login', async (req, res) => {
         location: user.location,
         alternateMobile: user.alternateMobile,
         hintName: user.hintName,
-        isAdmin: isAdminEmail(user.email),
+        isAdmin: isAdminUserId(user._id),
       },
     });
   } catch (error) {

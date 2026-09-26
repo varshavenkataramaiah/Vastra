@@ -1,7 +1,6 @@
 const express = require('express');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
-const seedProducts = require('../data/seedProducts');
 const adminMiddleware = require('../middleware/adminMiddleware');
 
 const router = express.Router();
@@ -28,24 +27,6 @@ router.get('/', async (req, res) => {
     res.status(200).json({ products });
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch products', error: error.message });
-  }
-});
-
-router.get('/seed', async (req, res) => {
-  try {
-    const existing = await Product.countDocuments();
-    if (existing > 0) {
-      await Product.updateMany(
-        { stock: { $exists: false } },
-        { $set: { stock: 10 } }
-      );
-      return res.status(200).json({ message: 'Seed data already exists', count: existing });
-    }
-
-    const products = await Product.insertMany(seedProducts);
-    res.status(201).json({ message: 'Seed data inserted', count: products.length });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to seed products', error: error.message });
   }
 });
 
